@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 func (r *mutationResolver) CreateVideo(ctx context.Context, input model.NewVideo) (*model.Video, error) {
@@ -30,6 +31,22 @@ func (r *queryResolver) Videos(ctx context.Context) ([]*model.Video, error) {
 		return nil, errors.New("Failed to query!")
 	}
 	return videos, nil
+}
+
+func (r *queryResolver) SearchVideos(ctx context.Context, searchQuery string) ([]*model.Video, error) {
+	var videos []*model.Video
+	var filteredVideos []*model.Video
+	err := r.DB.Model(&videos).Order("id").Select()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+	for i := range videos {
+		data, searchText := strings.ToLower(videos[i].Title), strings.ToLower(searchQuery)
+		if strings.Contains(data, searchText) {
+			filteredVideos = append(filteredVideos, videos[i])
+		}
+	}
+	return filteredVideos, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

@@ -23,6 +23,7 @@ input NewVideo{
 
 type Query{
     videos: [Video!]!
+    searchVideos(search_query: String!): [Video!]!
 }
 
 type Mutation{
