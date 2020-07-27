@@ -5,7 +5,7 @@ package model
 type NewUser struct {
 	Username     string `json:"username"`
 	Email        string `json:"email"`
-	UserPassword int    `json:"user_password"`
+	UserPassword string `json:"user_password"`
 	ChannelName  string `json:"channel_name"`
 }
 
@@ -22,7 +22,7 @@ type User struct {
 	ID           string `json:"id"`
 	Username     string `json:"username"`
 	Email        string `json:"email"`
-	UserPassword int    `json:"user_password"`
+	UserPassword string `json:"user_password"`
 	ChannelName  string `json:"channel_name"`
 }
 

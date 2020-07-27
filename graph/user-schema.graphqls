@@ -6,19 +6,20 @@ type User{
     id: ID!
     username: String!
     email: String!
-    user_password: Int!
+    user_password: String!
     channel_name: String!
 }
 
 input NewUser{
     username: String!
     email: String!
-    user_password: Int!
+    user_password: String!
     channel_name: String!
 }
 
 extend type Query{
     users: [User!]!
+    searchUserByEmail(searchEmail: String!): [User!]!
 }
 
 extend type Mutation{

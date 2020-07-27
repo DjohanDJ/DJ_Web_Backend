@@ -53,9 +53,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		SearchVideos func(childComplexity int, searchQuery string) int
-		Users        func(childComplexity int) int
-		Videos       func(childComplexity int) int
+		SearchUserByEmail func(childComplexity int, searchEmail string) int
+		SearchVideos      func(childComplexity int, searchQuery string) int
+		Users             func(childComplexity int) int
+		Videos            func(childComplexity int) int
 	}
 
 	User struct {
@@ -87,6 +88,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
+	SearchUserByEmail(ctx context.Context, searchEmail string) ([]*model.User, error)
 	Videos(ctx context.Context) ([]*model.Video, error)
 	SearchVideos(ctx context.Context, searchQuery string) ([]*model.Video, error)
 }
@@ -177,6 +179,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateVideo(childComplexity, args["id"].(string), args["input"].(model.NewVideo)), true
+
+	case "Query.searchUserByEmail":
+		if e.complexity.Query.SearchUserByEmail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_searchUserByEmail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchUserByEmail(childComplexity, args["searchEmail"].(string)), true
 
 	case "Query.searchVideos":
 		if e.complexity.Query.SearchVideos == nil {
@@ -370,19 +384,20 @@ type User{
     id: ID!
     username: String!
     email: String!
-    user_password: Int!
+    user_password: String!
     channel_name: String!
 }
 
 input NewUser{
     username: String!
     email: String!
-    user_password: Int!
+    user_password: String!
     channel_name: String!
 }
 
 extend type Query{
     users: [User!]!
+    searchUserByEmail(searchEmail: String!): [User!]!
 }
 
 extend type Mutation{
@@ -543,6 +558,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_searchUserByEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["searchEmail"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["searchEmail"] = arg0
 	return args, nil
 }
 
@@ -876,6 +905,47 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	return ec.marshalNUser2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_searchUserByEmail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_searchUserByEmail_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchUserByEmail(rctx, args["searchEmail"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_videos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1151,9 +1221,9 @@ func (ec *executionContext) _User_user_password(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_channel_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -2503,7 +2573,7 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			}
 		case "user_password":
 			var err error
-			it.UserPassword, err = ec.unmarshalNInt2int(ctx, v)
+			it.UserPassword, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2655,6 +2725,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_users(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "searchUserByEmail":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_searchUserByEmail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

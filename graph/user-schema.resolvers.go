@@ -6,11 +6,22 @@ package graph
 import (
 	"DJ-TPA-Backend/graph/model"
 	"context"
+	"errors"
 	"fmt"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	newUser := model.User{
+		Username:     input.Username,
+		Email:        input.Email,
+		UserPassword: input.UserPassword,
+		ChannelName:  input.ChannelName,
+	}
+	_, err := r.DB.Model(&newUser).Insert()
+	if err != nil {
+		return nil, errors.New("Insert user failed !")
+	}
+	return &newUser, err
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input model.NewUser) (*model.User, error) {
@@ -23,4 +34,20 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) SearchUserByEmail(ctx context.Context, searchEmail string) ([]*model.User, error) {
+	var users []*model.User
+	var filteredUser []*model.User
+	err := r.DB.Model(&users).Order("id").Select()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+	for i := range users {
+		if users[i].Email == searchEmail {
+			filteredUser = append(filteredUser, users[i])
+			break
+		}
+	}
+	return filteredUser, nil
 }
