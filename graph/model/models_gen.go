@@ -2,6 +2,13 @@
 
 package model
 
+type NewUser struct {
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	UserPassword int    `json:"user_password"`
+	ChannelName  string `json:"channel_name"`
+}
+
 type NewVideo struct {
 	ImagePath   string `json:"image_path"`
 	Title       string `json:"title"`
@@ -9,6 +16,14 @@ type NewVideo struct {
 	ViewCount   int    `json:"view_count"`
 	UploadDate  string `json:"upload_date"`
 	VideoPath   string `json:"video_path"`
+}
+
+type User struct {
+	ID           string `json:"id"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	UserPassword int    `json:"user_password"`
+	ChannelName  string `json:"channel_name"`
 }
 
 type Video struct {
