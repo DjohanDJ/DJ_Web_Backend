@@ -7,6 +7,7 @@ type NewUser struct {
 	Email        string `json:"email"`
 	UserPassword string `json:"user_password"`
 	ChannelName  string `json:"channel_name"`
+	UserImage    string `json:"user_image"`
 }
 
 type NewVideo struct {
@@ -16,6 +17,7 @@ type NewVideo struct {
 	ViewCount   int    `json:"view_count"`
 	UploadDate  string `json:"upload_date"`
 	VideoPath   string `json:"video_path"`
+	UserID      int    `json:"user_id"`
 }
 
 type User struct {
@@ -24,6 +26,7 @@ type User struct {
 	Email        string `json:"email"`
 	UserPassword string `json:"user_password"`
 	ChannelName  string `json:"channel_name"`
+	UserImage    string `json:"user_image"`
 }
 
 type Video struct {
@@ -34,4 +37,5 @@ type Video struct {
 	ViewCount   int    `json:"view_count"`
 	UploadDate  string `json:"upload_date"`
 	VideoPath   string `json:"video_path"`
+	UserID      string `json:"user_id"`
 }

@@ -8,6 +8,7 @@ type User{
     email: String!
     user_password: String!
     channel_name: String!
+    user_image: String!
 }
 
 input NewUser{
@@ -15,11 +16,13 @@ input NewUser{
     email: String!
     user_password: String!
     channel_name: String!
+    user_image: String!
 }
 
 extend type Query{
     users: [User!]!
     searchUserByEmail(searchEmail: String!): [User!]!
+    searchUserByID(userId: Int!): User!
 }
 
 extend type Mutation{

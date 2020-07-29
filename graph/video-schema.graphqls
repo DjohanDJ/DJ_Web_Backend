@@ -10,6 +10,7 @@ type Video{
     view_count: Int!
     upload_date: String!
     video_path: String!
+    user_id: ID!
 }
 
 input NewVideo{
@@ -19,6 +20,7 @@ input NewVideo{
     view_count: Int!
     upload_date: String!
     video_path: String!
+    user_id: Int!
 }
 
 extend type Query{

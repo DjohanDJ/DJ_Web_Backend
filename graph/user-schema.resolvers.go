@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
@@ -16,6 +17,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 		Email:        input.Email,
 		UserPassword: input.UserPassword,
 		ChannelName:  input.ChannelName,
+		UserImage:    input.UserImage,
 	}
 	_, err := r.DB.Model(&newUser).Insert()
 	if err != nil {
@@ -46,6 +48,22 @@ func (r *queryResolver) SearchUserByEmail(ctx context.Context, searchEmail strin
 	for i := range users {
 		if users[i].Email == searchEmail {
 			filteredUser = append(filteredUser, users[i])
+			break
+		}
+	}
+	return filteredUser, nil
+}
+
+func (r *queryResolver) SearchUserByID(ctx context.Context, userID int) (*model.User, error) {
+	var users []*model.User
+	var filteredUser *model.User
+	err := r.DB.Model(&users).Order("id").Select()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+	for i := range users {
+		if users[i].ID == strconv.Itoa(userID) {
+			filteredUser = users[i]
 			break
 		}
 	}

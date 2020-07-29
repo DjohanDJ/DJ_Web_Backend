@@ -54,6 +54,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		SearchUserByEmail func(childComplexity int, searchEmail string) int
+		SearchUserByID    func(childComplexity int, userID int) int
 		SearchVideos      func(childComplexity int, searchQuery string) int
 		Users             func(childComplexity int) int
 		Videos            func(childComplexity int) int
@@ -63,6 +64,7 @@ type ComplexityRoot struct {
 		ChannelName  func(childComplexity int) int
 		Email        func(childComplexity int) int
 		ID           func(childComplexity int) int
+		UserImage    func(childComplexity int) int
 		UserPassword func(childComplexity int) int
 		Username     func(childComplexity int) int
 	}
@@ -73,6 +75,7 @@ type ComplexityRoot struct {
 		ImagePath   func(childComplexity int) int
 		Title       func(childComplexity int) int
 		UploadDate  func(childComplexity int) int
+		UserID      func(childComplexity int) int
 		VideoPath   func(childComplexity int) int
 		ViewCount   func(childComplexity int) int
 	}
@@ -89,6 +92,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
 	SearchUserByEmail(ctx context.Context, searchEmail string) ([]*model.User, error)
+	SearchUserByID(ctx context.Context, userID int) (*model.User, error)
 	Videos(ctx context.Context) ([]*model.Video, error)
 	SearchVideos(ctx context.Context, searchQuery string) ([]*model.Video, error)
 }
@@ -192,6 +196,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.SearchUserByEmail(childComplexity, args["searchEmail"].(string)), true
 
+	case "Query.searchUserByID":
+		if e.complexity.Query.SearchUserByID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_searchUserByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchUserByID(childComplexity, args["userId"].(int)), true
+
 	case "Query.searchVideos":
 		if e.complexity.Query.SearchVideos == nil {
 			break
@@ -238,6 +254,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.ID(childComplexity), true
+
+	case "User.user_image":
+		if e.complexity.User.UserImage == nil {
+			break
+		}
+
+		return e.complexity.User.UserImage(childComplexity), true
 
 	case "User.user_password":
 		if e.complexity.User.UserPassword == nil {
@@ -287,6 +310,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Video.UploadDate(childComplexity), true
+
+	case "Video.user_id":
+		if e.complexity.Video.UserID == nil {
+			break
+		}
+
+		return e.complexity.Video.UserID(childComplexity), true
 
 	case "Video.video_path":
 		if e.complexity.Video.VideoPath == nil {
@@ -386,6 +416,7 @@ type User{
     email: String!
     user_password: String!
     channel_name: String!
+    user_image: String!
 }
 
 input NewUser{
@@ -393,11 +424,13 @@ input NewUser{
     email: String!
     user_password: String!
     channel_name: String!
+    user_image: String!
 }
 
 extend type Query{
     users: [User!]!
     searchUserByEmail(searchEmail: String!): [User!]!
+    searchUserByID(userId: Int!): User!
 }
 
 extend type Mutation{
@@ -418,6 +451,7 @@ type Video{
     view_count: Int!
     upload_date: String!
     video_path: String!
+    user_id: ID!
 }
 
 input NewVideo{
@@ -427,6 +461,7 @@ input NewVideo{
     view_count: Int!
     upload_date: String!
     video_path: String!
+    user_id: Int!
 }
 
 extend type Query{
@@ -572,6 +607,20 @@ func (ec *executionContext) field_Query_searchUserByEmail_args(ctx context.Conte
 		}
 	}
 	args["searchEmail"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_searchUserByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["userId"]; ok {
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
 	return args, nil
 }
 
@@ -946,6 +995,47 @@ func (ec *executionContext) _Query_searchUserByEmail(ctx context.Context, field 
 	return ec.marshalNUser2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_searchUserByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_searchUserByID_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchUserByID(rctx, args["userId"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_videos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1260,6 +1350,40 @@ func (ec *executionContext) _User_channel_name(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_user_image(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserImage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Video_id(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1496,6 +1620,40 @@ func (ec *executionContext) _Video_video_path(ctx context.Context, field graphql
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Video_user_id(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Video",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2583,6 +2741,12 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
+		case "user_image":
+			var err error
+			it.UserImage, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2628,6 +2792,12 @@ func (ec *executionContext) unmarshalInputNewVideo(ctx context.Context, obj inte
 		case "video_path":
 			var err error
 			it.VideoPath, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "user_id":
+			var err error
+			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2744,6 +2914,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "searchUserByID":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_searchUserByID(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "videos":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -2823,6 +3007,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "user_image":
+			out.Values[i] = ec._User_user_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2877,6 +3066,11 @@ func (ec *executionContext) _Video(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "video_path":
 			out.Values[i] = ec._Video_video_path(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user_id":
+			out.Values[i] = ec._Video_user_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
