@@ -11,6 +11,7 @@ type Video{
     upload_date: String!
     video_path: String!
     user_id: ID!
+    restriction: String!
 }
 
 input NewVideo{
@@ -21,11 +22,14 @@ input NewVideo{
     upload_date: String!
     video_path: String!
     user_id: Int!
+    restriction: String!
 }
 
 extend type Query{
     videos: [Video!]!
     searchVideos(search_query: String!): [Video!]!
+    searchKidVideos: [Video!]!
+    searchHomeVideosManager(isKid: Boolean!): [Video!]!
 }
 
 extend type Mutation{

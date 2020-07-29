@@ -18,6 +18,7 @@ type NewVideo struct {
 	UploadDate  string `json:"upload_date"`
 	VideoPath   string `json:"video_path"`
 	UserID      int    `json:"user_id"`
+	Restriction string `json:"restriction"`
 }
 
 type User struct {
@@ -38,4 +39,5 @@ type Video struct {
 	UploadDate  string `json:"upload_date"`
 	VideoPath   string `json:"video_path"`
 	UserID      string `json:"user_id"`
+	Restriction string `json:"restriction"`
 }

@@ -47,3 +47,26 @@ func (r *queryResolver) SearchVideos(ctx context.Context, searchQuery string) ([
 	}
 	return filteredVideos, nil
 }
+
+func (r *queryResolver) SearchKidVideos(ctx context.Context) ([]*model.Video, error) {
+	var videos []*model.Video
+	var filteredVideos []*model.Video
+	err := r.DB.Model(&videos).Order("id").Select()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+	for i := range videos {
+		if videos[i].Restriction == "kid" {
+			filteredVideos = append(filteredVideos, videos[i])
+		}
+	}
+	return filteredVideos, nil
+}
+
+func (r *queryResolver) SearchHomeVideosManager(ctx context.Context, isKid bool) ([]*model.Video, error) {
+	if isKid {
+		return r.SearchKidVideos(ctx)
+	} else {
+		return r.Videos(ctx)
+	}
+}

@@ -53,11 +53,13 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		SearchUserByEmail func(childComplexity int, searchEmail string) int
-		SearchUserByID    func(childComplexity int, userID int) int
-		SearchVideos      func(childComplexity int, searchQuery string) int
-		Users             func(childComplexity int) int
-		Videos            func(childComplexity int) int
+		SearchHomeVideosManager func(childComplexity int, isKid bool) int
+		SearchKidVideos         func(childComplexity int) int
+		SearchUserByEmail       func(childComplexity int, searchEmail string) int
+		SearchUserByID          func(childComplexity int, userID int) int
+		SearchVideos            func(childComplexity int, searchQuery string) int
+		Users                   func(childComplexity int) int
+		Videos                  func(childComplexity int) int
 	}
 
 	User struct {
@@ -73,6 +75,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		ImagePath   func(childComplexity int) int
+		Restriction func(childComplexity int) int
 		Title       func(childComplexity int) int
 		UploadDate  func(childComplexity int) int
 		UserID      func(childComplexity int) int
@@ -95,6 +98,8 @@ type QueryResolver interface {
 	SearchUserByID(ctx context.Context, userID int) (*model.User, error)
 	Videos(ctx context.Context) ([]*model.Video, error)
 	SearchVideos(ctx context.Context, searchQuery string) ([]*model.Video, error)
+	SearchKidVideos(ctx context.Context) ([]*model.Video, error)
+	SearchHomeVideosManager(ctx context.Context, isKid bool) ([]*model.Video, error)
 }
 
 type executableSchema struct {
@@ -183,6 +188,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateVideo(childComplexity, args["id"].(string), args["input"].(model.NewVideo)), true
+
+	case "Query.searchHomeVideosManager":
+		if e.complexity.Query.SearchHomeVideosManager == nil {
+			break
+		}
+
+		args, err := ec.field_Query_searchHomeVideosManager_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchHomeVideosManager(childComplexity, args["isKid"].(bool)), true
+
+	case "Query.searchKidVideos":
+		if e.complexity.Query.SearchKidVideos == nil {
+			break
+		}
+
+		return e.complexity.Query.SearchKidVideos(childComplexity), true
 
 	case "Query.searchUserByEmail":
 		if e.complexity.Query.SearchUserByEmail == nil {
@@ -296,6 +320,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Video.ImagePath(childComplexity), true
+
+	case "Video.restriction":
+		if e.complexity.Video.Restriction == nil {
+			break
+		}
+
+		return e.complexity.Video.Restriction(childComplexity), true
 
 	case "Video.title":
 		if e.complexity.Video.Title == nil {
@@ -452,6 +483,7 @@ type Video{
     upload_date: String!
     video_path: String!
     user_id: ID!
+    restriction: String!
 }
 
 input NewVideo{
@@ -462,11 +494,14 @@ input NewVideo{
     upload_date: String!
     video_path: String!
     user_id: Int!
+    restriction: String!
 }
 
 extend type Query{
     videos: [Video!]!
     searchVideos(search_query: String!): [Video!]!
+    searchKidVideos: [Video!]!
+    searchHomeVideosManager(isKid: Boolean!): [Video!]!
 }
 
 extend type Mutation{
@@ -593,6 +628,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_searchHomeVideosManager_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 bool
+	if tmp, ok := rawArgs["isKid"]; ok {
+		arg0, err = ec.unmarshalNBoolean2bool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["isKid"] = arg0
 	return args, nil
 }
 
@@ -1095,6 +1144,81 @@ func (ec *executionContext) _Query_searchVideos(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().SearchVideos(rctx, args["search_query"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Video)
+	fc.Result = res
+	return ec.marshalNVideo2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐVideoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_searchKidVideos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchKidVideos(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Video)
+	fc.Result = res
+	return ec.marshalNVideo2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐVideoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_searchHomeVideosManager(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_searchHomeVideosManager_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchHomeVideosManager(rctx, args["isKid"].(bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1654,6 +1778,40 @@ func (ec *executionContext) _Video_user_id(ctx context.Context, field graphql.Co
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Video_restriction(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Video",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Restriction, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2801,6 +2959,12 @@ func (ec *executionContext) unmarshalInputNewVideo(ctx context.Context, obj inte
 			if err != nil {
 				return it, err
 			}
+		case "restriction":
+			var err error
+			it.Restriction, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2956,6 +3120,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "searchKidVideos":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_searchKidVideos(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "searchHomeVideosManager":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_searchHomeVideosManager(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -3071,6 +3263,11 @@ func (ec *executionContext) _Video(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "user_id":
 			out.Values[i] = ec._Video_user_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "restriction":
+			out.Values[i] = ec._Video_restriction(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
