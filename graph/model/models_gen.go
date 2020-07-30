@@ -3,11 +3,12 @@
 package model
 
 type NewUser struct {
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	UserPassword string `json:"user_password"`
-	ChannelName  string `json:"channel_name"`
-	UserImage    string `json:"user_image"`
+	Username      string `json:"username"`
+	Email         string `json:"email"`
+	UserPassword  string `json:"user_password"`
+	ChannelName   string `json:"channel_name"`
+	UserImage     string `json:"user_image"`
+	ChannelBanner string `json:"channel_banner"`
 }
 
 type NewVideo struct {
@@ -22,12 +23,13 @@ type NewVideo struct {
 }
 
 type User struct {
-	ID           string `json:"id"`
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	UserPassword string `json:"user_password"`
-	ChannelName  string `json:"channel_name"`
-	UserImage    string `json:"user_image"`
+	ID            string `json:"id"`
+	Username      string `json:"username"`
+	Email         string `json:"email"`
+	UserPassword  string `json:"user_password"`
+	ChannelName   string `json:"channel_name"`
+	UserImage     string `json:"user_image"`
+	ChannelBanner string `json:"channel_banner"`
 }
 
 type Video struct {

@@ -9,6 +9,7 @@ type User{
     user_password: String!
     channel_name: String!
     user_image: String!
+    channel_banner: String!
 }
 
 input NewUser{
@@ -17,6 +18,7 @@ input NewUser{
     user_password: String!
     channel_name: String!
     user_image: String!
+    channel_banner: String!
 }
 
 extend type Query{

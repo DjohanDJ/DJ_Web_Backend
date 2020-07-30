@@ -63,12 +63,13 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		ChannelName  func(childComplexity int) int
-		Email        func(childComplexity int) int
-		ID           func(childComplexity int) int
-		UserImage    func(childComplexity int) int
-		UserPassword func(childComplexity int) int
-		Username     func(childComplexity int) int
+		ChannelBanner func(childComplexity int) int
+		ChannelName   func(childComplexity int) int
+		Email         func(childComplexity int) int
+		ID            func(childComplexity int) int
+		UserImage     func(childComplexity int) int
+		UserPassword  func(childComplexity int) int
+		Username      func(childComplexity int) int
 	}
 
 	Video struct {
@@ -257,6 +258,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Videos(childComplexity), true
+
+	case "User.channel_banner":
+		if e.complexity.User.ChannelBanner == nil {
+			break
+		}
+
+		return e.complexity.User.ChannelBanner(childComplexity), true
 
 	case "User.channel_name":
 		if e.complexity.User.ChannelName == nil {
@@ -448,6 +456,7 @@ type User{
     user_password: String!
     channel_name: String!
     user_image: String!
+    channel_banner: String!
 }
 
 input NewUser{
@@ -456,6 +465,7 @@ input NewUser{
     user_password: String!
     channel_name: String!
     user_image: String!
+    channel_banner: String!
 }
 
 extend type Query{
@@ -1492,6 +1502,40 @@ func (ec *executionContext) _User_user_image(ctx context.Context, field graphql.
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UserImage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_channel_banner(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ChannelBanner, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2905,6 +2949,12 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
+		case "channel_banner":
+			var err error
+			it.ChannelBanner, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -3201,6 +3251,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "user_image":
 			out.Values[i] = ec._User_user_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "channel_banner":
+			out.Values[i] = ec._User_channel_banner(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
