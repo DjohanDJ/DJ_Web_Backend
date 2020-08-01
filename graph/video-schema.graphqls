@@ -12,6 +12,7 @@ type Video{
     video_path: String!
     user_id: ID!
     restriction: String!
+    category_id: Int!
 }
 
 input NewVideo{
@@ -23,6 +24,7 @@ input NewVideo{
     video_path: String!
     user_id: Int!
     restriction: String!
+    category_id: Int!
 }
 
 extend type Query{

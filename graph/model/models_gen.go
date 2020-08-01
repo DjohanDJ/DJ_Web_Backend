@@ -20,6 +20,7 @@ type NewVideo struct {
 	VideoPath   string `json:"video_path"`
 	UserID      int    `json:"user_id"`
 	Restriction string `json:"restriction"`
+	CategoryID  int    `json:"category_id"`
 }
 
 type User struct {
@@ -42,4 +43,5 @@ type Video struct {
 	VideoPath   string `json:"video_path"`
 	UserID      string `json:"user_id"`
 	Restriction string `json:"restriction"`
+	CategoryID  int    `json:"category_id"`
 }
