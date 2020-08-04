@@ -2,6 +2,19 @@
 
 package model
 
+type Comment struct {
+	ID              string `json:"id"`
+	VideoID         int    `json:"video_id"`
+	CommentParentID int    `json:"comment_parent_id"`
+	CommentValue    string `json:"comment_value"`
+}
+
+type NewComment struct {
+	VideoID         int    `json:"video_id"`
+	CommentParentID int    `json:"comment_parent_id"`
+	CommentValue    string `json:"comment_value"`
+}
+
 type NewUser struct {
 	Username      string `json:"username"`
 	Email         string `json:"email"`

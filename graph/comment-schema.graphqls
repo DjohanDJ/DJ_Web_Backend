@@ -1,0 +1,26 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Comment{
+    id: ID!
+    video_id: Int!
+    comment_parent_id: Int!
+    comment_value: String!
+}
+
+input NewComment{
+    video_id: Int!
+    comment_parent_id: Int!
+    comment_value: String!
+}
+
+extend type Query{
+    comments: [Comment!]
+}
+
+extend type Mutation{
+    createComment(input: NewComment!): Comment!
+    updateComment(id: ID!, input: NewComment!): Comment!
+    deleteComment(id: ID!): Boolean!
+}
