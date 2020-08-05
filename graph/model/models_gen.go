@@ -7,12 +7,14 @@ type Comment struct {
 	VideoID         int    `json:"video_id"`
 	CommentParentID int    `json:"comment_parent_id"`
 	CommentValue    string `json:"comment_value"`
+	UserID          int    `json:"user_id"`
 }
 
 type NewComment struct {
 	VideoID         int    `json:"video_id"`
 	CommentParentID int    `json:"comment_parent_id"`
 	CommentValue    string `json:"comment_value"`
+	UserID          int    `json:"user_id"`
 }
 
 type NewUser struct {

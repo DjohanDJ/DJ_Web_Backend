@@ -7,12 +7,14 @@ type Comment{
     video_id: Int!
     comment_parent_id: Int!
     comment_value: String!
+    user_id: Int!
 }
 
 input NewComment{
     video_id: Int!
     comment_parent_id: Int!
     comment_value: String!
+    user_id: Int!
 }
 
 extend type Query{

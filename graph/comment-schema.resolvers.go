@@ -6,11 +6,22 @@ package graph
 import (
 	"DJ-TPA-Backend/graph/model"
 	"context"
+	"errors"
 	"fmt"
 )
 
 func (r *mutationResolver) CreateComment(ctx context.Context, input model.NewComment) (*model.Comment, error) {
-	panic(fmt.Errorf("not implemented"))
+	newComment := model.Comment{
+		VideoID:         input.VideoID,
+		CommentParentID: input.CommentParentID,
+		CommentValue:    input.CommentValue,
+		UserID:          input.UserID,
+	}
+	_, err := r.DB.Model(&newComment).Insert()
+	if err != nil {
+		return nil, errors.New("Insert user failed !")
+	}
+	return &newComment, err
 }
 
 func (r *mutationResolver) UpdateComment(ctx context.Context, id string, input model.NewComment) (*model.Comment, error) {
@@ -22,5 +33,10 @@ func (r *mutationResolver) DeleteComment(ctx context.Context, id string) (bool, 
 }
 
 func (r *queryResolver) Comments(ctx context.Context) ([]*model.Comment, error) {
-	panic(fmt.Errorf("not implemented"))
+	var comments []*model.Comment
+	err := r.DB.Model(&comments).Order("id").Select()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+	return comments, nil
 }

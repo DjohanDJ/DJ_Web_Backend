@@ -47,6 +47,7 @@ type ComplexityRoot struct {
 		CommentParentID func(childComplexity int) int
 		CommentValue    func(childComplexity int) int
 		ID              func(childComplexity int) int
+		UserID          func(childComplexity int) int
 		VideoID         func(childComplexity int) int
 	}
 
@@ -154,6 +155,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Comment.ID(childComplexity), true
+
+	case "Comment.user_id":
+		if e.complexity.Comment.UserID == nil {
+			break
+		}
+
+		return e.complexity.Comment.UserID(childComplexity), true
 
 	case "Comment.video_id":
 		if e.complexity.Comment.VideoID == nil {
@@ -538,12 +546,14 @@ type Comment{
     video_id: Int!
     comment_parent_id: Int!
     comment_value: String!
+    user_id: Int!
 }
 
 input NewComment{
     video_id: Int!
     comment_parent_id: Int!
     comment_value: String!
+    user_id: Int!
 }
 
 extend type Query{
@@ -1040,6 +1050,40 @@ func (ec *executionContext) _Comment_comment_value(ctx context.Context, field gr
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Comment_user_id(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Comment",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createComment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3434,6 +3478,12 @@ func (ec *executionContext) unmarshalInputNewComment(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
+		case "user_id":
+			var err error
+			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -3590,6 +3640,11 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "comment_value":
 			out.Values[i] = ec._Comment_comment_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user_id":
+			out.Values[i] = ec._Comment_user_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
