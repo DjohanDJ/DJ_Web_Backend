@@ -35,7 +35,12 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	var users []*model.User
+	err := r.DB.Model(&users).Order("id").Select()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+	return users, nil
 }
 
 func (r *queryResolver) SearchUserByEmail(ctx context.Context, searchEmail string) ([]*model.User, error) {

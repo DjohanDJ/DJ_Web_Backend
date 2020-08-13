@@ -16,6 +16,9 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input model.NewCom
 		CommentParentID: input.CommentParentID,
 		CommentValue:    input.CommentValue,
 		UserID:          input.UserID,
+		CommentDate:     input.CommentDate,
+		Likes:           input.Likes,
+		Dislikes:        input.Dislikes,
 	}
 	_, err := r.DB.Model(&newComment).Insert()
 	if err != nil {

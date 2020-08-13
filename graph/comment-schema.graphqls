@@ -8,6 +8,9 @@ type Comment{
     comment_parent_id: Int!
     comment_value: String!
     user_id: Int!
+    comment_date: String!
+    likes: Int!
+    dislikes: Int!
 }
 
 input NewComment{
@@ -15,6 +18,9 @@ input NewComment{
     comment_parent_id: Int!
     comment_value: String!
     user_id: Int!
+    comment_date: String!
+    likes: Int!
+    dislikes: Int!
 }
 
 extend type Query{

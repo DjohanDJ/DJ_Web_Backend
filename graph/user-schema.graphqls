@@ -10,6 +10,7 @@ type User{
     channel_name: String!
     user_image: String!
     channel_banner: String!
+    channel_desc: String!
 }
 
 input NewUser{
@@ -19,6 +20,7 @@ input NewUser{
     channel_name: String!
     user_image: String!
     channel_banner: String!
+    channel_desc: String!
 }
 
 extend type Query{

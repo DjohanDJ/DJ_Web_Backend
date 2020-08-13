@@ -8,6 +8,9 @@ type Comment struct {
 	CommentParentID int    `json:"comment_parent_id"`
 	CommentValue    string `json:"comment_value"`
 	UserID          int    `json:"user_id"`
+	CommentDate     string `json:"comment_date"`
+	Likes           int    `json:"likes"`
+	Dislikes        int    `json:"dislikes"`
 }
 
 type NewComment struct {
@@ -15,6 +18,9 @@ type NewComment struct {
 	CommentParentID int    `json:"comment_parent_id"`
 	CommentValue    string `json:"comment_value"`
 	UserID          int    `json:"user_id"`
+	CommentDate     string `json:"comment_date"`
+	Likes           int    `json:"likes"`
+	Dislikes        int    `json:"dislikes"`
 }
 
 type NewUser struct {
@@ -24,6 +30,7 @@ type NewUser struct {
 	ChannelName   string `json:"channel_name"`
 	UserImage     string `json:"user_image"`
 	ChannelBanner string `json:"channel_banner"`
+	ChannelDesc   string `json:"channel_desc"`
 }
 
 type NewVideo struct {
@@ -36,6 +43,7 @@ type NewVideo struct {
 	UserID      int    `json:"user_id"`
 	Restriction string `json:"restriction"`
 	CategoryID  int    `json:"category_id"`
+	Location    string `json:"location"`
 }
 
 type User struct {
@@ -46,6 +54,7 @@ type User struct {
 	ChannelName   string `json:"channel_name"`
 	UserImage     string `json:"user_image"`
 	ChannelBanner string `json:"channel_banner"`
+	ChannelDesc   string `json:"channel_desc"`
 }
 
 type Video struct {
@@ -59,4 +68,5 @@ type Video struct {
 	UserID      string `json:"user_id"`
 	Restriction string `json:"restriction"`
 	CategoryID  int    `json:"category_id"`
+	Location    string `json:"location"`
 }
