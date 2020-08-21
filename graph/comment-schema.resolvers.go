@@ -28,7 +28,22 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input model.NewCom
 }
 
 func (r *mutationResolver) UpdateComment(ctx context.Context, id string, input model.NewComment) (*model.Comment, error) {
-	panic(fmt.Errorf("not implemented"))
+	var comment model.Comment
+
+	err := r.DB.Model(&comment).Where("id = ?", id).First()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+
+	comment.Likes = input.Likes
+	comment.Dislikes = input.Dislikes
+
+	_, errUpdate := r.DB.Model(&comment).Where("id = ?", id).Update()
+	if errUpdate != nil {
+		return nil, errors.New("Failed to query!")
+	}
+
+	return &comment, nil
 }
 
 func (r *mutationResolver) DeleteComment(ctx context.Context, id string) (bool, error) {

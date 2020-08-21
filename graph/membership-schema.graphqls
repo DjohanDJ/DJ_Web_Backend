@@ -1,0 +1,26 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Membership{
+    id: ID!
+    user_id: Int!
+    join_premium_date: String!
+    member_type: String!
+}
+
+input NewMembership{
+    user_id: Int!
+    join_premium_date: String!
+    member_type: String!
+}
+
+extend type Query{
+    memberships: [Membership!]
+}
+
+extend type Mutation{
+    createMembership(input: NewMembership!): Membership!
+    updateMembership(id: ID!, input: NewMembership!): Membership!
+    deleteMembership(id: ID!): Boolean!
+}

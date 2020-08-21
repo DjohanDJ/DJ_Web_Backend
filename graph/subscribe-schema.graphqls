@@ -1,0 +1,24 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Subscriber{
+    id: ID!
+    channel_id: Int!
+    user_id: Int!
+}
+
+input NewSubscriber{
+    channel_id: Int!
+    user_id: Int!
+}
+
+extend type Query{
+    subscribers: [Subscriber!]
+}
+
+extend type Mutation{
+    createSubscriber(input: NewSubscriber!): Subscriber!
+    updateSubscriber(id: ID!, input: NewSubscriber!): Subscriber!
+    deleteSubscriber(id: ID!): Boolean!
+}

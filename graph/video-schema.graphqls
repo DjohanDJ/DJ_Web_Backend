@@ -14,6 +14,8 @@ type Video{
     restriction: String!
     category_id: Int!
     location: String!
+    publish: String!
+    premium: String!
 }
 
 input NewVideo{
@@ -27,6 +29,8 @@ input NewVideo{
     restriction: String!
     category_id: Int!
     location: String!
+    publish: String!
+    premium: String!
 }
 
 extend type Query{

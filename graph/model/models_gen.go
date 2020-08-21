@@ -13,6 +13,13 @@ type Comment struct {
 	Dislikes        int    `json:"dislikes"`
 }
 
+type Membership struct {
+	ID              string `json:"id"`
+	UserID          int    `json:"user_id"`
+	JoinPremiumDate string `json:"join_premium_date"`
+	MemberType      string `json:"member_type"`
+}
+
 type NewComment struct {
 	VideoID         int    `json:"video_id"`
 	CommentParentID int    `json:"comment_parent_id"`
@@ -23,6 +30,17 @@ type NewComment struct {
 	Dislikes        int    `json:"dislikes"`
 }
 
+type NewMembership struct {
+	UserID          int    `json:"user_id"`
+	JoinPremiumDate string `json:"join_premium_date"`
+	MemberType      string `json:"member_type"`
+}
+
+type NewSubscriber struct {
+	ChannelID int `json:"channel_id"`
+	UserID    int `json:"user_id"`
+}
+
 type NewUser struct {
 	Username      string `json:"username"`
 	Email         string `json:"email"`
@@ -31,6 +49,11 @@ type NewUser struct {
 	UserImage     string `json:"user_image"`
 	ChannelBanner string `json:"channel_banner"`
 	ChannelDesc   string `json:"channel_desc"`
+	Restriction   string `json:"restriction"`
+	Location      string `json:"location"`
+	Membership    string `json:"membership"`
+	ExpiredMember string `json:"expired_member"`
+	JoinDate      string `json:"join_date"`
 }
 
 type NewVideo struct {
@@ -44,6 +67,14 @@ type NewVideo struct {
 	Restriction string `json:"restriction"`
 	CategoryID  int    `json:"category_id"`
 	Location    string `json:"location"`
+	Publish     string `json:"publish"`
+	Premium     string `json:"premium"`
+}
+
+type Subscriber struct {
+	ID        string `json:"id"`
+	ChannelID int    `json:"channel_id"`
+	UserID    int    `json:"user_id"`
 }
 
 type User struct {
@@ -55,6 +86,11 @@ type User struct {
 	UserImage     string `json:"user_image"`
 	ChannelBanner string `json:"channel_banner"`
 	ChannelDesc   string `json:"channel_desc"`
+	Restriction   string `json:"restriction"`
+	Location      string `json:"location"`
+	Membership    string `json:"membership"`
+	ExpiredMember string `json:"expired_member"`
+	JoinDate      string `json:"join_date"`
 }
 
 type Video struct {
@@ -69,4 +105,6 @@ type Video struct {
 	Restriction string `json:"restriction"`
 	CategoryID  int    `json:"category_id"`
 	Location    string `json:"location"`
+	Publish     string `json:"publish"`
+	Premium     string `json:"premium"`
 }

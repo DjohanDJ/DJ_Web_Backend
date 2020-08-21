@@ -11,6 +11,11 @@ type User{
     user_image: String!
     channel_banner: String!
     channel_desc: String!
+    restriction: String!
+    location: String!
+    membership: String!
+    expired_member: String!
+    join_date: String!
 }
 
 input NewUser{
@@ -21,6 +26,11 @@ input NewUser{
     user_image: String!
     channel_banner: String!
     channel_desc: String!
+    restriction: String!
+    location: String!
+    membership: String!
+    expired_member: String!
+    join_date: String!
 }
 
 extend type Query{

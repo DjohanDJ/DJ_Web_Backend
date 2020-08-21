@@ -18,6 +18,9 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 		UserPassword: input.UserPassword,
 		ChannelName:  input.ChannelName,
 		UserImage:    input.UserImage,
+		Restriction:  input.Restriction,
+		Location:     input.Location,
+		Membership:   "non-premium",
 	}
 	_, err := r.DB.Model(&newUser).Insert()
 	if err != nil {
@@ -27,7 +30,32 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 }
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input model.NewUser) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	var user model.User
+
+	err := r.DB.Model(&user).Where("id = ?", id).First()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+
+	user.Username = input.Username
+	user.Email = input.Email
+	user.UserPassword = input.UserPassword
+	user.ChannelName = input.ChannelName
+	user.UserImage = input.UserImage
+	user.Restriction = input.Restriction
+	user.Location = input.Location
+	user.UserImage = input.UserImage
+	user.ChannelBanner = input.ChannelBanner
+	user.Membership = input.Membership
+	user.ExpiredMember = input.ExpiredMember
+	user.JoinDate = input.JoinDate
+
+	_, errUpdate := r.DB.Model(&user).Where("id = ?", id).Update()
+	if errUpdate != nil {
+		return nil, errors.New("Failed to query!")
+	}
+
+	return &user, nil
 }
 
 func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, error) {
