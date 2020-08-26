@@ -14,7 +14,7 @@ func (r *mutationResolver) CreateMembership(ctx context.Context, input model.New
 	newMembership := model.Membership{
 		UserID:          input.UserID,
 		JoinPremiumDate: input.JoinPremiumDate,
-		MemberType: input.MemberType,
+		MemberType:      input.MemberType,
 	}
 	_, err := r.DB.Model(&newMembership).Insert()
 	if err != nil {

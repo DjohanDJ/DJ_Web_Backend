@@ -16,6 +16,7 @@ type Video{
     location: String!
     publish: String!
     premium: String!
+    duration: String!
 }
 
 input NewVideo{
@@ -31,6 +32,7 @@ input NewVideo{
     location: String!
     publish: String!
     premium: String!
+    duration: String!
 }
 
 extend type Query{

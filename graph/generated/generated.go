@@ -64,24 +64,40 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateComment    func(childComplexity int, input model.NewComment) int
 		CreateMembership func(childComplexity int, input model.NewMembership) int
+		CreatePlaylist   func(childComplexity int, input model.NewPlaylist) int
 		CreateSubscriber func(childComplexity int, input model.NewSubscriber) int
 		CreateUser       func(childComplexity int, input model.NewUser) int
 		CreateVideo      func(childComplexity int, input model.NewVideo) int
 		DeleteComment    func(childComplexity int, id string) int
 		DeleteMembership func(childComplexity int, id string) int
+		DeletePlaylist   func(childComplexity int, playlistID string, videoID int) int
 		DeleteSubscriber func(childComplexity int, id string) int
 		DeleteUser       func(childComplexity int, id string) int
 		DeleteVideo      func(childComplexity int, id string) int
 		UpdateComment    func(childComplexity int, id string, input model.NewComment) int
 		UpdateMembership func(childComplexity int, id string, input model.NewMembership) int
+		UpdatePlaylist   func(childComplexity int, playlistID string, input model.NewPlaylist) int
 		UpdateSubscriber func(childComplexity int, id string, input model.NewSubscriber) int
 		UpdateUser       func(childComplexity int, id string, input model.NewUser) int
 		UpdateVideo      func(childComplexity int, id string, input model.NewVideo) int
 	}
 
+	Playlist struct {
+		ChannelID   func(childComplexity int) int
+		Description func(childComplexity int) int
+		PlaylistID  func(childComplexity int) int
+		Privacy     func(childComplexity int) int
+		Thumbnail   func(childComplexity int) int
+		Title       func(childComplexity int) int
+		UpdateDate  func(childComplexity int) int
+		VideoID     func(childComplexity int) int
+		ViewCount   func(childComplexity int) int
+	}
+
 	Query struct {
 		Comments                func(childComplexity int) int
 		Memberships             func(childComplexity int) int
+		Playlists               func(childComplexity int) int
 		SearchHomeVideosManager func(childComplexity int, isKid bool) int
 		SearchKidVideos         func(childComplexity int) int
 		SearchUserByEmail       func(childComplexity int, searchEmail string) int
@@ -117,6 +133,7 @@ type ComplexityRoot struct {
 	Video struct {
 		CategoryID  func(childComplexity int) int
 		Description func(childComplexity int) int
+		Duration    func(childComplexity int) int
 		ID          func(childComplexity int) int
 		ImagePath   func(childComplexity int) int
 		Location    func(childComplexity int) int
@@ -138,6 +155,9 @@ type MutationResolver interface {
 	CreateMembership(ctx context.Context, input model.NewMembership) (*model.Membership, error)
 	UpdateMembership(ctx context.Context, id string, input model.NewMembership) (*model.Membership, error)
 	DeleteMembership(ctx context.Context, id string) (bool, error)
+	CreatePlaylist(ctx context.Context, input model.NewPlaylist) (*model.Playlist, error)
+	UpdatePlaylist(ctx context.Context, playlistID string, input model.NewPlaylist) ([]*model.Playlist, error)
+	DeletePlaylist(ctx context.Context, playlistID string, videoID int) (bool, error)
 	CreateSubscriber(ctx context.Context, input model.NewSubscriber) (*model.Subscriber, error)
 	UpdateSubscriber(ctx context.Context, id string, input model.NewSubscriber) (*model.Subscriber, error)
 	DeleteSubscriber(ctx context.Context, id string) (bool, error)
@@ -151,6 +171,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Comments(ctx context.Context) ([]*model.Comment, error)
 	Memberships(ctx context.Context) ([]*model.Membership, error)
+	Playlists(ctx context.Context) ([]*model.Playlist, error)
 	Subscribers(ctx context.Context) ([]*model.Subscriber, error)
 	Users(ctx context.Context) ([]*model.User, error)
 	SearchUserByEmail(ctx context.Context, searchEmail string) ([]*model.User, error)
@@ -284,6 +305,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateMembership(childComplexity, args["input"].(model.NewMembership)), true
 
+	case "Mutation.createPlaylist":
+		if e.complexity.Mutation.CreatePlaylist == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPlaylist_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePlaylist(childComplexity, args["input"].(model.NewPlaylist)), true
+
 	case "Mutation.createSubscriber":
 		if e.complexity.Mutation.CreateSubscriber == nil {
 			break
@@ -343,6 +376,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteMembership(childComplexity, args["id"].(string)), true
+
+	case "Mutation.deletePlaylist":
+		if e.complexity.Mutation.DeletePlaylist == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePlaylist_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeletePlaylist(childComplexity, args["playlist_id"].(string), args["video_id"].(int)), true
 
 	case "Mutation.deleteSubscriber":
 		if e.complexity.Mutation.DeleteSubscriber == nil {
@@ -404,6 +449,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateMembership(childComplexity, args["id"].(string), args["input"].(model.NewMembership)), true
 
+	case "Mutation.updatePlaylist":
+		if e.complexity.Mutation.UpdatePlaylist == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePlaylist_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePlaylist(childComplexity, args["playlist_id"].(string), args["input"].(model.NewPlaylist)), true
+
 	case "Mutation.updateSubscriber":
 		if e.complexity.Mutation.UpdateSubscriber == nil {
 			break
@@ -440,6 +497,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateVideo(childComplexity, args["id"].(string), args["input"].(model.NewVideo)), true
 
+	case "Playlist.channel_id":
+		if e.complexity.Playlist.ChannelID == nil {
+			break
+		}
+
+		return e.complexity.Playlist.ChannelID(childComplexity), true
+
+	case "Playlist.description":
+		if e.complexity.Playlist.Description == nil {
+			break
+		}
+
+		return e.complexity.Playlist.Description(childComplexity), true
+
+	case "Playlist.playlist_id":
+		if e.complexity.Playlist.PlaylistID == nil {
+			break
+		}
+
+		return e.complexity.Playlist.PlaylistID(childComplexity), true
+
+	case "Playlist.privacy":
+		if e.complexity.Playlist.Privacy == nil {
+			break
+		}
+
+		return e.complexity.Playlist.Privacy(childComplexity), true
+
+	case "Playlist.thumbnail":
+		if e.complexity.Playlist.Thumbnail == nil {
+			break
+		}
+
+		return e.complexity.Playlist.Thumbnail(childComplexity), true
+
+	case "Playlist.title":
+		if e.complexity.Playlist.Title == nil {
+			break
+		}
+
+		return e.complexity.Playlist.Title(childComplexity), true
+
+	case "Playlist.update_date":
+		if e.complexity.Playlist.UpdateDate == nil {
+			break
+		}
+
+		return e.complexity.Playlist.UpdateDate(childComplexity), true
+
+	case "Playlist.video_id":
+		if e.complexity.Playlist.VideoID == nil {
+			break
+		}
+
+		return e.complexity.Playlist.VideoID(childComplexity), true
+
+	case "Playlist.view_count":
+		if e.complexity.Playlist.ViewCount == nil {
+			break
+		}
+
+		return e.complexity.Playlist.ViewCount(childComplexity), true
+
 	case "Query.comments":
 		if e.complexity.Query.Comments == nil {
 			break
@@ -453,6 +573,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Memberships(childComplexity), true
+
+	case "Query.playlists":
+		if e.complexity.Query.Playlists == nil {
+			break
+		}
+
+		return e.complexity.Query.Playlists(childComplexity), true
 
 	case "Query.searchHomeVideosManager":
 		if e.complexity.Query.SearchHomeVideosManager == nil {
@@ -655,6 +782,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Video.Description(childComplexity), true
+
+	case "Video.duration":
+		if e.complexity.Video.Duration == nil {
+			break
+		}
+
+		return e.complexity.Video.Duration(childComplexity), true
 
 	case "Video.id":
 		if e.complexity.Video.ID == nil {
@@ -859,6 +993,44 @@ extend type Mutation{
     deleteMembership(id: ID!): Boolean!
 }
 `, BuiltIn: false},
+	&ast.Source{Name: "graph/playlist-schema.graphqls", Input: `# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Playlist{
+    playlist_id: ID!
+    video_id: Int!
+    channel_id: Int!
+    title: String!
+    description: String!
+    thumbnail: String!
+    update_date: String!
+    view_count: Int!
+    privacy: String!
+}
+
+input NewPlaylist{
+    playlist_id: ID!
+    video_id: Int!
+    channel_id: Int!
+    title: String!
+    description: String!
+    thumbnail: String!
+    update_date: String!
+    view_count: Int!
+    privacy: String!
+}
+
+extend type Query{
+    playlists: [Playlist!]
+}
+
+extend type Mutation{
+    createPlaylist(input: NewPlaylist!): Playlist!
+    updatePlaylist(playlist_id: ID!, input: NewPlaylist!): [Playlist!]
+    deletePlaylist(playlist_id: ID!, video_id: Int!): Boolean!
+}
+`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
@@ -959,6 +1131,7 @@ type Video{
     location: String!
     publish: String!
     premium: String!
+    duration: String!
 }
 
 input NewVideo{
@@ -974,6 +1147,7 @@ input NewVideo{
     location: String!
     publish: String!
     premium: String!
+    duration: String!
 }
 
 extend type Query{
@@ -1016,6 +1190,20 @@ func (ec *executionContext) field_Mutation_createMembership_args(ctx context.Con
 	var arg0 model.NewMembership
 	if tmp, ok := rawArgs["input"]; ok {
 		arg0, err = ec.unmarshalNNewMembership2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐNewMembership(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createPlaylist_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewPlaylist
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNNewPlaylist2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐNewPlaylist(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1091,6 +1279,28 @@ func (ec *executionContext) field_Mutation_deleteMembership_args(ctx context.Con
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deletePlaylist_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["playlist_id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["playlist_id"] = arg0
+	var arg1 int
+	if tmp, ok := rawArgs["video_id"]; ok {
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["video_id"] = arg1
 	return args, nil
 }
 
@@ -1172,6 +1382,28 @@ func (ec *executionContext) field_Mutation_updateMembership_args(ctx context.Con
 	var arg1 model.NewMembership
 	if tmp, ok := rawArgs["input"]; ok {
 		arg1, err = ec.unmarshalNNewMembership2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐNewMembership(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updatePlaylist_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["playlist_id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["playlist_id"] = arg0
+	var arg1 model.NewPlaylist
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNNewPlaylist2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐNewPlaylist(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2006,6 +2238,126 @@ func (ec *executionContext) _Mutation_deleteMembership(ctx context.Context, fiel
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createPlaylist(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createPlaylist_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreatePlaylist(rctx, args["input"].(model.NewPlaylist))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Playlist)
+	fc.Result = res
+	return ec.marshalNPlaylist2ᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐPlaylist(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updatePlaylist(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updatePlaylist_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdatePlaylist(rctx, args["playlist_id"].(string), args["input"].(model.NewPlaylist))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Playlist)
+	fc.Result = res
+	return ec.marshalOPlaylist2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐPlaylistᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deletePlaylist(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deletePlaylist_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeletePlaylist(rctx, args["playlist_id"].(string), args["video_id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createSubscriber(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2375,6 +2727,312 @@ func (ec *executionContext) _Mutation_deleteVideo(ctx context.Context, field gra
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Playlist_playlist_id(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlaylistID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_video_id(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VideoID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_channel_id(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ChannelID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_title(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_description(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_thumbnail(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Thumbnail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_update_date(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdateDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_view_count(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ViewCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Playlist_privacy(ctx context.Context, field graphql.CollectedField, obj *model.Playlist) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Playlist",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Privacy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_comments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2435,6 +3093,37 @@ func (ec *executionContext) _Query_memberships(ctx context.Context, field graphq
 	res := resTmp.([]*model.Membership)
 	fc.Result = res
 	return ec.marshalOMembership2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐMembershipᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_playlists(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Playlists(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Playlist)
+	fc.Result = res
+	return ec.marshalOPlaylist2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐPlaylistᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_subscribers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3789,6 +4478,40 @@ func (ec *executionContext) _Video_premium(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Video_duration(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Video",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Duration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4928,6 +5651,72 @@ func (ec *executionContext) unmarshalInputNewMembership(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputNewPlaylist(ctx context.Context, obj interface{}) (model.NewPlaylist, error) {
+	var it model.NewPlaylist
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "playlist_id":
+			var err error
+			it.PlaylistID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "video_id":
+			var err error
+			it.VideoID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "channel_id":
+			var err error
+			it.ChannelID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "title":
+			var err error
+			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "description":
+			var err error
+			it.Description, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "thumbnail":
+			var err error
+			it.Thumbnail, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "update_date":
+			var err error
+			it.UpdateDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "view_count":
+			var err error
+			it.ViewCount, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "privacy":
+			var err error
+			it.Privacy, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewSubscriber(ctx context.Context, obj interface{}) (model.NewSubscriber, error) {
 	var it model.NewSubscriber
 	var asMap = obj.(map[string]interface{})
@@ -5114,6 +5903,12 @@ func (ec *executionContext) unmarshalInputNewVideo(ctx context.Context, obj inte
 			if err != nil {
 				return it, err
 			}
+		case "duration":
+			var err error
+			it.Duration, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -5277,6 +6072,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createPlaylist":
+			out.Values[i] = ec._Mutation_createPlaylist(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updatePlaylist":
+			out.Values[i] = ec._Mutation_updatePlaylist(ctx, field)
+		case "deletePlaylist":
+			out.Values[i] = ec._Mutation_deletePlaylist(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createSubscriber":
 			out.Values[i] = ec._Mutation_createSubscriber(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -5333,6 +6140,73 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var playlistImplementors = []string{"Playlist"}
+
+func (ec *executionContext) _Playlist(ctx context.Context, sel ast.SelectionSet, obj *model.Playlist) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, playlistImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Playlist")
+		case "playlist_id":
+			out.Values[i] = ec._Playlist_playlist_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "video_id":
+			out.Values[i] = ec._Playlist_video_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "channel_id":
+			out.Values[i] = ec._Playlist_channel_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._Playlist_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+			out.Values[i] = ec._Playlist_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "thumbnail":
+			out.Values[i] = ec._Playlist_thumbnail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "update_date":
+			out.Values[i] = ec._Playlist_update_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "view_count":
+			out.Values[i] = ec._Playlist_view_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "privacy":
+			out.Values[i] = ec._Playlist_privacy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -5368,6 +6242,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_memberships(ctx, field)
+				return res
+			})
+		case "playlists":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_playlists(ctx, field)
 				return res
 			})
 		case "subscribers":
@@ -5691,6 +6576,11 @@ func (ec *executionContext) _Video(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "premium":
 			out.Values[i] = ec._Video_premium(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "duration":
+			out.Values[i] = ec._Video_duration(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -6028,6 +6918,10 @@ func (ec *executionContext) unmarshalNNewMembership2DJᚑTPAᚑBackendᚋgraph�
 	return ec.unmarshalInputNewMembership(ctx, v)
 }
 
+func (ec *executionContext) unmarshalNNewPlaylist2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐNewPlaylist(ctx context.Context, v interface{}) (model.NewPlaylist, error) {
+	return ec.unmarshalInputNewPlaylist(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNNewSubscriber2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐNewSubscriber(ctx context.Context, v interface{}) (model.NewSubscriber, error) {
 	return ec.unmarshalInputNewSubscriber(ctx, v)
 }
@@ -6038,6 +6932,20 @@ func (ec *executionContext) unmarshalNNewUser2DJᚑTPAᚑBackendᚋgraphᚋmodel
 
 func (ec *executionContext) unmarshalNNewVideo2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐNewVideo(ctx context.Context, v interface{}) (model.NewVideo, error) {
 	return ec.unmarshalInputNewVideo(ctx, v)
+}
+
+func (ec *executionContext) marshalNPlaylist2DJᚑTPAᚑBackendᚋgraphᚋmodelᚐPlaylist(ctx context.Context, sel ast.SelectionSet, v model.Playlist) graphql.Marshaler {
+	return ec._Playlist(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPlaylist2ᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐPlaylist(ctx context.Context, sel ast.SelectionSet, v *model.Playlist) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Playlist(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -6487,6 +7395,46 @@ func (ec *executionContext) marshalOMembership2ᚕᚖDJᚑTPAᚑBackendᚋgraph�
 				defer wg.Done()
 			}
 			ret[i] = ec.marshalNMembership2ᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐMembership(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOPlaylist2ᚕᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐPlaylistᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Playlist) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPlaylist2ᚖDJᚑTPAᚑBackendᚋgraphᚋmodelᚐPlaylist(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

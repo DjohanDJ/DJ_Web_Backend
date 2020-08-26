@@ -36,6 +36,18 @@ type NewMembership struct {
 	MemberType      string `json:"member_type"`
 }
 
+type NewPlaylist struct {
+	PlaylistID  string `json:"playlist_id"`
+	VideoID     int    `json:"video_id"`
+	ChannelID   int    `json:"channel_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Thumbnail   string `json:"thumbnail"`
+	UpdateDate  string `json:"update_date"`
+	ViewCount   int    `json:"view_count"`
+	Privacy     string `json:"privacy"`
+}
+
 type NewSubscriber struct {
 	ChannelID int `json:"channel_id"`
 	UserID    int `json:"user_id"`
@@ -69,6 +81,19 @@ type NewVideo struct {
 	Location    string `json:"location"`
 	Publish     string `json:"publish"`
 	Premium     string `json:"premium"`
+	Duration    string `json:"duration"`
+}
+
+type Playlist struct {
+	PlaylistID  string `json:"playlist_id"`
+	VideoID     int    `json:"video_id"`
+	ChannelID   int    `json:"channel_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Thumbnail   string `json:"thumbnail"`
+	UpdateDate  string `json:"update_date"`
+	ViewCount   int    `json:"view_count"`
+	Privacy     string `json:"privacy"`
 }
 
 type Subscriber struct {
@@ -107,4 +132,5 @@ type Video struct {
 	Location    string `json:"location"`
 	Publish     string `json:"publish"`
 	Premium     string `json:"premium"`
+	Duration    string `json:"duration"`
 }
