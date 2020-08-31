@@ -1,0 +1,19 @@
+type Savedplay{
+    savedplay_id: ID!
+    user_id: Int!
+}
+
+input NewSavedplay{
+    savedplay_id: ID!
+    user_id: Int!
+}
+
+extend type Query{
+    savedplays: [Savedplay!]
+}
+
+extend type Mutation{
+    createSavedplay(input: NewSavedplay!): Savedplay!
+    updateSavedplay(savedplay_id: ID!, input: NewSavedplay!): [Savedplay!]
+    deleteSavedplay(savedplay_id: ID!, user_id: Int!): Boolean!
+}

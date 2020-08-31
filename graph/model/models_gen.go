@@ -48,6 +48,11 @@ type NewPlaylist struct {
 	Privacy     string `json:"privacy"`
 }
 
+type NewSavedplay struct {
+	SavedplayID string `json:"savedplay_id"`
+	UserID      int    `json:"user_id"`
+}
+
 type NewSubscriber struct {
 	ChannelID int `json:"channel_id"`
 	UserID    int `json:"user_id"`
@@ -94,6 +99,11 @@ type Playlist struct {
 	UpdateDate  string `json:"update_date"`
 	ViewCount   int    `json:"view_count"`
 	Privacy     string `json:"privacy"`
+}
+
+type Savedplay struct {
+	SavedplayID string `json:"savedplay_id"`
+	UserID      int    `json:"user_id"`
 }
 
 type Subscriber struct {

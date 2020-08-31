@@ -7,11 +7,25 @@ import (
 	"DJ-TPA-Backend/graph/model"
 	"context"
 	"errors"
-	"fmt"
 )
 
 func (r *mutationResolver) CreatePlaylist(ctx context.Context, input model.NewPlaylist) (*model.Playlist, error) {
-	panic(fmt.Errorf("not implemented"))
+	newPlaylist := model.Playlist{
+		PlaylistID:  input.PlaylistID,
+		VideoID:     input.VideoID,
+		ChannelID:   input.ChannelID,
+		Title:       input.Title,
+		Description: "No description",
+		Thumbnail:   "./../../assets/dummy-home-assets/iu-love-poem.jpg",
+		UpdateDate:  input.UpdateDate,
+		ViewCount:   1,
+		Privacy:     "Private",
+	}
+	_, err := r.DB.Model(&newPlaylist).Insert()
+	if err != nil {
+		return nil, errors.New("Insert user failed !")
+	}
+	return &newPlaylist, err
 }
 
 func (r *mutationResolver) UpdatePlaylist(ctx context.Context, playlistID string, input model.NewPlaylist) ([]*model.Playlist, error) {
@@ -27,6 +41,26 @@ func (r *mutationResolver) UpdatePlaylist(ctx context.Context, playlistID string
 		playlists[i].Description = input.Description
 		playlists[i].Privacy = input.Privacy
 		playlists[i].ViewCount = input.ViewCount
+		_, errUpdate := r.DB.Model(playlists[i]).Where("playlist_id = ?", playlists[i].PlaylistID).Where("video_id = ?", playlists[i].VideoID).Update()
+		if errUpdate != nil {
+			return nil, errors.New("Failed to query!" + errUpdate.Error())
+		}
+	}
+
+	return playlists, nil
+}
+
+func (r *mutationResolver) UpdatePlaylistDate(ctx context.Context, playlistID string, input model.NewPlaylist) ([]*model.Playlist, error) {
+	var playlists []*model.Playlist
+
+	err := r.DB.Model(&playlists).Where("playlist_id = ?", playlistID).Select()
+	if err != nil {
+		return nil, errors.New("Failed to query!")
+	}
+
+	for i := range playlists {
+		playlists[i].UpdateDate = input.UpdateDate
+		playlists[i].Privacy = "Private"
 		_, errUpdate := r.DB.Model(playlists[i]).Where("playlist_id = ?", playlists[i].PlaylistID).Where("video_id = ?", playlists[i].VideoID).Update()
 		if errUpdate != nil {
 			return nil, errors.New("Failed to query!" + errUpdate.Error())

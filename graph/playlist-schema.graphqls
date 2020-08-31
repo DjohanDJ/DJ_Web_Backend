@@ -33,5 +33,6 @@ extend type Query{
 extend type Mutation{
     createPlaylist(input: NewPlaylist!): Playlist!
     updatePlaylist(playlist_id: ID!, input: NewPlaylist!): [Playlist!]
+    updatePlaylistDate(playlist_id: ID!, input: NewPlaylist!): [Playlist!]
     deletePlaylist(playlist_id: ID!, video_id: Int!): Boolean!
 }
