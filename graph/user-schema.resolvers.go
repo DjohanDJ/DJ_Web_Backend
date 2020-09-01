@@ -21,6 +21,8 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 		Restriction:  input.Restriction,
 		Location:     input.Location,
 		Membership:   "non-premium",
+		ViewCount: 1,
+		InstagramLink: "",
 	}
 	_, err := r.DB.Model(&newUser).Insert()
 	if err != nil {

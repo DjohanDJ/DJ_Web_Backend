@@ -6,14 +6,14 @@ package graph
 import (
 	"DJ-TPA-Backend/graph/model"
 	"context"
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 func (r *mutationResolver) CreateSavedplay(ctx context.Context, input model.NewSavedplay) (*model.Savedplay, error) {
 	newSavedplays := model.Savedplay{
 		SavedplayID: input.SavedplayID,
-		UserID:     input.UserID,
+		UserID:      input.UserID,
 	}
 	_, err := r.DB.Model(&newSavedplays).Insert()
 	if err != nil {

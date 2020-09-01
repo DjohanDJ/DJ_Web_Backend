@@ -48,6 +48,17 @@ type NewPlaylist struct {
 	Privacy     string `json:"privacy"`
 }
 
+type NewPost struct {
+	PostID       string `json:"post_id"`
+	ChannelID    string `json:"channel_id"`
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	Image        string `json:"image"`
+	LikeCount    int    `json:"like_count"`
+	DislikeCount int    `json:"dislike_count"`
+	Date         string `json:"date"`
+}
+
 type NewSavedplay struct {
 	SavedplayID string `json:"savedplay_id"`
 	UserID      int    `json:"user_id"`
@@ -71,6 +82,8 @@ type NewUser struct {
 	Membership    string `json:"membership"`
 	ExpiredMember string `json:"expired_member"`
 	JoinDate      string `json:"join_date"`
+	ViewCount     int    `json:"view_count"`
+	InstagramLink string `json:"instagram_link"`
 }
 
 type NewVideo struct {
@@ -101,6 +114,17 @@ type Playlist struct {
 	Privacy     string `json:"privacy"`
 }
 
+type Post struct {
+	PostID       string `json:"post_id"`
+	ChannelID    string `json:"channel_id"`
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	Image        string `json:"image"`
+	LikeCount    int    `json:"like_count"`
+	DislikeCount int    `json:"dislike_count"`
+	Date         string `json:"date"`
+}
+
 type Savedplay struct {
 	SavedplayID string `json:"savedplay_id"`
 	UserID      int    `json:"user_id"`
@@ -126,6 +150,8 @@ type User struct {
 	Membership    string `json:"membership"`
 	ExpiredMember string `json:"expired_member"`
 	JoinDate      string `json:"join_date"`
+	ViewCount     int    `json:"view_count"`
+	InstagramLink string `json:"instagram_link"`
 }
 
 type Video struct {

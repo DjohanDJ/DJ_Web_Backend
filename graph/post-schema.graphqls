@@ -1,0 +1,35 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Post{
+    post_id: ID!
+    channel_id: ID!
+    title: String!
+    description: String!
+    image: String!
+    like_count: Int!
+    dislike_count: Int!
+    date: String!
+}
+
+input NewPost{
+    post_id: ID!
+    channel_id: ID!
+    title: String!
+    description: String!
+    image: String!
+    like_count: Int!
+    dislike_count: Int!
+    date: String!
+}
+
+extend type Query{
+    posts: [Post!]!
+}
+
+extend type Mutation{
+    createPost(input: NewPost!): Post!
+    updatePost(post_id: ID!, input: NewPost!): Post!
+    deletePost(post_id: ID!): Boolean!
+}

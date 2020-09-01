@@ -16,6 +16,8 @@ type User{
     membership: String!
     expired_member: String!
     join_date: String!
+    view_count: Int!
+    instagram_link: String!
 }
 
 input NewUser{
@@ -31,6 +33,8 @@ input NewUser{
     membership: String!
     expired_member: String!
     join_date: String!
+    view_count: Int!
+    instagram_link: String!
 }
 
 extend type Query{
